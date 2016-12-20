@@ -1,3 +1,5 @@
+[Link to index page](index).
+
 ## File Baru
 
 Untuk membuat berkas baru, bisa secara offline maupun secara online.
