@@ -2,12 +2,12 @@
 title: Aplikasi Android dengan Basis Data Lokal
 date: 2017-06-05 15:32:20
 tags:
-  - git
-  - github
+  - android
+  - sqlite
   - koding
 categories:
-  - Catatan
-  - Tool Pemrograman
+  - Pemrograman
+  - Android
 ---
 
 Tutorial ini akan menggunakan contoh aplikasi manajemen keuangan pribadi. Aplikasi ini merupakan aplikasi sederhana yang terdiri dari beberapa bagian penting yaitu:
@@ -22,36 +22,36 @@ Tutorial ini akan menggunakan contoh aplikasi manajemen keuangan pribadi. Aplika
 Langkah pertama yang dilakukan dalam pengembangan aplikasi adalah membuat proyek dengan Android Studio. Berikut adalah langkah pembuatan proyek untuk aplikasi kita:
 
 1. Pilih menu **New Apllication**
-![New Application](./images/01_welcome_AS.png)
+![New Application](/images/01_welcome_AS.png)
 2. Selanjutnya isikan **Application Name** dengan `Pengurus Uang` dan **Domain Name** dengan `app.manajemenuang.net`. Jangan lupa untuk memilih alamat direktori sesuai dengan yang kita inginkan.
-![](./images/02_create_new_project.png)
+![](/images/02_create_new_project.png)
 3. Selanjutnya kita akan diminta untuk memilih template dari **Activity** yang akan digunakan, di sini sebaiknya kita gunakan **Basic Activity** untuk memudahkan pembuatan aplikasi nanti.
-![](./images/04_select_activity.png)
+![](/images/04_select_activity.png)
 4. Terakhir biarkan nama activity utamanya `MainActivity` begitu juga nama file layoutnya `activity_main.xml`, Kemudian klik finish.
-![](./images/05_name_activity.png)
+![](/images/05_name_activity.png)
 
 Pada tahap ini kita sudah memiliki kerangka aplikasi yang sudah siap di-*compile* dan dijalankan. Untuk menguji coba aplikasi dasar tersebut, kita bisa mengklik tombol Run. Selanjutnya Android Studio akan memerlukan beberapa saat untuk melakukan kompilasi, membuka AVD (jika belum dijalankan sebelumnya) dan mengirim hasil aplikasi yang kita buat ke Device atau Virtual Device yang dipilih.
 
-![](./images/06_run_app.png)
+![](/images/06_run_app.png)
 
 Ketika proses kompilasi selesai, kita akan mendapatkan hasil sebagaimana ditunjukkan pada gambar di bawah ini. Biarkan AVD tetap berjalan (untuk menghemat waktu starting AVD) dan kita lanjutkan ke langkah pengembangan proyek selanjutnya.
 
-![](./images/09_hello_world.png)
+![](/images/09_hello_world.png)
 
 ## Membuat Activity & Layout
 
 Setelah project dibuat dan bisa berjalan dengan baik, saatnya kita menambahkan komponen lain ke dalam project kita. Rencananya aplikasi yang akan kita buat memiliki beberapa tampilan dengan workflow sebagaimana ditampilkan pada gambar di bawah ini.
 
-![](./images/diagram.png)
+![](/images/diagram.png)
 
 Berdasarkan gambar tersebut, berarti kita memerlukan paling tidak 4 buah antarmuka tampilan yang dalam pemrograman Android disebut sebagai Activity. Saat ini kita sudah mendapatkan 1 tampilan sebagai halaman utama dan halaman yang pertama kali dibuka ketika aplikasi dijalankan, berarti kita memerlukan tambahan 3 Activity lagi.
 
 ### TransactionListActivity
 
 1. Klik kanan pada direktori java project, kemudian pilih menu **New > Activity > Empty Activity**
-![](./images/08_create_activity.png)
+![](/images/08_create_activity.png)
 2. Pada inputan **Activity Class** inputkan `TransactionListActivity`, dan pastikan pada **Layout file** bernilai `activity_transaction_list.xml`
-![](./images/10_TransactionListActivity.png)
+![](/images/10_TransactionListActivity.png)
 3. Kemudian setelah Android Studio selesai men-*generate* file activity java dan layout, isikan kode layout berikut pada pada file `activity_transaction_list.xml`
 
 ```xml
