@@ -10,13 +10,15 @@ categories:
   - Android
 ---
 
-Firebase merupakan *backend* yang telah diakuisisi oleh Google beberapa waktu lalu dan memiliki beberapa layanan antara lain Realtime Database, Messaging Service, Authentication Service, Storage, dan Hosting. Keunggulan dari layanan ini adalah tentu saja menggunakan server google yang pastinya reliable dan auto scale. Dan yang paling menarik dari layanan ini adalah terdapat skema gratisan yang dapat digunakan untuk mulai membangun aplikasi dari skala kecil hingga menengah.
+Firebase merupakan *backend* yang telah diakuisisi oleh Google pada Oktober 2014 dan memiliki beberapa layanan antara lain Realtime Database, Messaging Service, Authentication Service, Storage, dan Hosting. Keunggulan dari layanan ini adalah tentu saja menggunakan server google yang pastinya reliable dan auto scale. Dan yang paling menarik dari layanan ini adalah terdapat skema gratisan yang dapat digunakan untuk mulai membangun aplikasi dari skala kecil hingga menengah.
 
 Pada tutorial ini kita akan membuat aplikasi Android yang menggunakan database firebase untuk menyimpan data keungan secara online. Selain itu pada tutorial ini juga akan dijelaskan penggunaan firebase auth untuk otentikasi pengguna sekaligus melakukan filtering terhadap siapa saja yang dapat mengakses data yang tersimpan pada firebase DB.
 
+<!--more-->
+
 ## Menggunakan UI Template
 
-Pada pertemuan (bab) sebelumnya, kita telah membuat template tampilan untuk aplikasi ini, nah saatnya kita memanggil kembali template tersebut dan memodifikasinya untuk membuat aplikasi manajemen keuangan pribadi versi 2 yang tidak lagi menggunakan basis data lokal SQLite, namun database cloud Firebase.
+Untuk memudahkan tutorial, silahkan menggunakan template project yang tersedia pada [repository Github](https://github.com/kaqfa/app_template). Pada project tersebut telah tersedia 6 Activity untuk aplikasi yaitu activity untuk tampilan **Register**, **Login**, **Dashboard**, **List Transaksi**, **Form Transaksi**, dan **Detail Transaksi**. Pada tutorial ini, kita hanya akan berkonsentrasi mengkoneksikan project tersebut dengan basis data Firebase.
 
 ## Membuat Project Pada Firebase
 
@@ -217,7 +219,7 @@ Terakhir, jika kita membuat aplikasi masal dan ingin mengkonfigurasi agar penggu
 
 ## Menambahkan data Melalui Form
 
-Proses penambahan data pada server memerlukan pengiriman data transaksi yang kemudian oleh server di-generate-kan sebuah id khusus. Sedangkan saat ini yang kita miliki pada class Transaksi adalah pengisian id secara manual, oleh karena itu kita perlu membuat constructor tambahan yang dapat membuat object transaksi tanpa menginputkan id. Tambahkan constructor baru pada class ```Transaction``` sebagai berikut:
+Proses penambahan data pada server memerlukan pengiriman data transaksi yang kemudian oleh server di-generate-kan sebuah id khusus. Sedangkan saat ini yang kita miliki pada class Transaksi adalah pengisian id secara manual, oleh karena itu kita perlu membuat constructor tambahan yang dapat membuat object transaksi tanpa menginputkan id. Tambahkan constructor baru pada class `Transaction` sebagai berikut:
 
 ```java
 public class Transaction implements Serializable, BaseColumns {
