@@ -13,15 +13,17 @@ categories:
 
 Tutorial ini menyambung dari tutorial sebelumnya tentang pengembangan aplikasi Android yang terkoneksi dengan basis data MySQL di server. Pada bagian pertama, kita sudah membahas bagaimana membuat service untuk aplikasi keuangan pribadi kita, dan pada bagian kedua ini kita akan membuat aplikasi Android-nya.
 
+<!--more-->
+
 ### Clone Template Aplikasi
 
-Aplikasi Android yang kita kembangkan di sini akan menggunakan template aplikasi yang sudah tersedia di repository github saya ini. Tujuannya agar kita tidak perlu ribet membuat tampilan yang sudah kita pelajari di tutorial sebelumnya. Jika anda memiliki git di komputer, anda bisa melakukan *clone* terhadap aplikasi dengan menggunakan perintah berikut:
+Aplikasi Android yang kita kembangkan di sini akan menggunakan template aplikasi yang sudah tersedia di [repository github saya ini](https://github.com/kaqfa/app_template). Tujuannya agar kita tidak perlu ribet membuat tampilan yang sudah kita pelajari di tutorial sebelumnya. Jika anda memiliki git di komputer, anda bisa melakukan *clone* terhadap aplikasi dengan menggunakan perintah berikut:
 
 ```
-git clone 
+git clone https://github.com/kaqfa/app_template.git
 ```
 
-Jika anda tidak memiliki aplikasi git, anda bisa mendownload template tersebut melalui link ini.
+Jika anda tidak memiliki aplikasi git, anda bisa mendownload template tersebut melalui [di sini](https://github.com/kaqfa/app_template/archive/master.zip).
 
 ### Mempersiapkan Android Volley
 
@@ -69,8 +71,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void register(View view){
 
-        String url = EndPoint.REGISTER_URL;
-
         String email = txtEmail.getText().toString();
         String password = txtPassword.getText().toString();
         String confirm = txtConfirm.getText().toString();
@@ -113,7 +113,15 @@ public class RegisterActivity extends AppCompatActivity {
 }
 ```
 
+Baris ke 7 hingga 9 adalah perintah untuk mendapatkan nilai inputan dan menyimpannya ke dalam variabel untuk digunakan pada proses selanjutnya. Selanjutnya pada baris 11 - 13 kita menggunakan `HashMap` untuk mempersiapkan data dari form tadi dikirimkan ke server dengan format **object JSON**.
+
+Perintah `JSONObjectRequest` pada baris 21 merupakan class yang dari pustaka Volley yang digunakan untuk melakukan request ke web service dengan mengirimkan data dalam bentuk JSON object dan mengharapkan *response* dalam bentuk JSON object juga. *Class* tersebut biasa digunakan untuk *method* POST, sehingga kita tidak perlu secara eksplisit *method* yang digunakan.
+
+Empat parameter yang diperlukan oleh *class* `JSONObjectRequest` adalah alamat URL untuk parameter pertama, sedangkan parameter kedua menggunakan tipe data `HashMap` serta digunakan untuk input data yang akan dikirimkan ke server. Adapun parameter ketiga dan keempat memerlukan object `Response.Listener` dan `Response.ErrorListener` untuk menetukan aksi apa yang harus dilakukan ketika mendapatkan *response* dari web service.
+
 ### Proses Login
+
+Setelah menyelesaikan proses registrasi, saatny kita memodifikasi `LoginActivity` untuk melakukan handling terhadap proses login. Proses ini bisa dibilang sedikit lebih rumit dibandingkan proses lain, karena selain melakukan *request* dan *response* pada server, proses ini juga bertanggung jawab untuk menyimpan **token** dan **uid** pada memori handphone, dan juga melakukan pengecekan apakah sudah ada pengguna yang login pada aplikasi atau tidak. Berikut adalah koding untuk `LoginActivity.java`.
 
 ```java
 public class LoginActivity extends AppCompatActivity {
@@ -123,75 +131,86 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.activity_login);
 
-        preferences = getSharedPreferences(AUTH_SESSION, Context.MODE_PRIVATE);
-        String token = preferences.getString("token", null);
-        // ...
-    }
-
-    public void sendRequest(){
-        String email = edtEmail.getText().toString();
-        String password = edtPassword.getText().toString();
-        HashMap<String, String> param = new HashMap<>();
-        param.put("email", email);
-        param.put("password", password);
-        JsonObjectRequest request = new JsonObjectRequest(EndPoint.LOGIN_URL,
-                new JSONObject(param), new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        int userid = 0;
-                        String token = "0";
-                        Log.d("response.login", response.toString());
-                        try {
-                            userid = response.getInt("uid");
-                            token = response.getString("token");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        if(userid > 0){
-                            saveToken(userid, token);
-                            Intent it = new Intent(getBaseContext(), MainActivity.class);
-                            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(it);
-                        } else {
-                            Toast.makeText(getBaseContext(),
-                                    "Username / Password salah",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("json.response", error.getMessage());
-                    }
-                }
-        );
-        RequestQueue rq = Volley.newRequestQueue(this);
-        rq.add(request);
+      preferences = getSharedPreferences(AUTH_SESSION, Context.MODE_PRIVATE);
+      String token = preferences.getString("token", null);
+      if(token != null){
+          Intent it = new Intent(this, MainActivity.class);
+          it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+          it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+          startActivity(it);
+      }
+      // ...
     }
 
     public void saveToken(int uid, String token){
-        SharedPreferences.Editor editor = preferences.edit();
+      SharedPreferences.Editor editor = preferences.edit();
 
-        editor.putString("token", token);
-        editor.putInt("uid", uid);
-        editor.commit();
+      editor.putString("token", token);
+      editor.putInt("uid", uid);
+      editor.commit();
     }
 
-    public void loginAct(View view) {
-        sendRequest();
-    }
+    public void sendRequest(){
+      String email = edtEmail.getText().toString();
+      String password = edtPassword.getText().toString();
+      HashMap<String, String> param = new HashMap<>();
+      param.put("email", email);
+      param.put("password", password);
+      JsonObjectRequest request = new JsonObjectRequest(EndPoint.LOGIN_URL,
+          new JSONObject(param), new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+              int userid = 0;
+              String token = "0";
+              Log.d("response.login", response.toString());
+              try {
+                userid = response.getInt("uid");
+                token = response.getString("token");
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
 
-    // ...
+              if(userid > 0){
+                saveToken(userid, token);
+                Intent it = new Intent(getBaseContext(), MainActivity.class);
+                it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(it);
+              } else {
+                Toast.makeText(getBaseContext(), "Username / Password salah",
+                               Toast.LENGTH_SHORT).show();
+              }
+            }
+          },
+          new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+              Log.d("json.response", error.getMessage());
+            }
+          }
+      );
+      RequestQueue rq = Volley.newRequestQueue(this);
+      rq.add(request);
+  }
+
+  public void loginAct(View view) {
+    sendRequest();
+  }
+
+  // ...
 }
 ```
 
+Proses yang pertama harus dilakukan adalah mengecek apakah sudah ada user yang login atau tidak. Kalau pada aplikasi berbasis web biasanya kita menggunakan Session atau Cookies, sedangkan pada Android kita bisa menggunakan `SharedPreferences` untuk menyimpan data sederhana. Inisialisasi variable `preferences` dan juga pengecekan pengguna aktif dilakukan pada method `onCreate`, karena tentu saja method tersebut adalah method yang pertama kali dijalankan dalam *Life Cycle* sebuah *activity*.
+
+Langkah selanjutnya, sebelum melakukan pengiriman *request* ke web service, kita menyiapkan method `saveToken` terlebih dahulu untuk persiapan penyimpanan **token** dan **uid** yang nantinya kita dapatkan dari web service. Selanjutnya baru kita buat fungsi `sendRequest` yang bertugas untuk mengirimkan *request* ke server dengan menggunakan class `JsonObjectRequest` seperti halnya ketika proses registrasi. Meski demikian ketika class tersebut mendapatkan *response* terdapat kemungkinan kombinasi **email** dan **password** yang diberikan tidak tepat (diindikasikan dengan *response* **uid** bernilai 0). Jika hal tersebut terjadi, maka aplikasi akan memberikan peringatan kesalahan **username** & **password** menggunakan `Toast`. Adapun jika login berhasil (diindikasikan dengan *response* **uid** bernilai lebih dari 0), maka aplikasi akan memanggil method `saveToken` untuk menyimpan token ke dalam `SharedPreferences` dan juga mengarahkan aplikasi ke `MainActivity`.
+
 ### Tampilan Dashboard
+
+Tampilan dashboard memiliki beberapa komponen yang berhubungan dengan transaksi yaitu Saldo, transaksi terendah dan transaksi tertinggi. Oleh karena itu, mulai dari dashboard kita sudah harus melakukan *request* data transaksi yang ada pada server. Namun sebelum itu, karena transaksi yang ditampilkan adalah transaksi milik pengguna yang sudah login saja, maka kita perlu mengambil data pengguna dari `SharedPreferences`. Jika ternyata belum ada data pengguna yang tersimpan, maka aplikasi akan dikembalikan ke tampilan login. Kode untuk `MainActivity.java` adalah sebagaimana di bawah ini:
 
 ```java
 public class MainActivity extends AppCompatActivity {
@@ -321,7 +340,17 @@ public class MainActivity extends AppCompatActivity {
 }
 ```
 
+Seperti halnya pada `LoginActivity` inisialisasi nilai untuk `SharedPreferences` dilakukan pada method `onCreate`, begitu juga untuk pengecekan pengguna aktif namun menggunakan logika terbalik, yaitu jika tidak ada data pengguna yang tersimpan maka aplikasi akan memanggil `LoginActivity`. Selanjutnya pada method `onOptionsItemSelected` kita menambahkan kode untuk aksi logout, yaitu menghapus semua data yang ada pada `SharedPreferences` kemudian mengarahkan tampilan aplikasi kembali ke Login.
+
+Proses pemanggilan *request* ke server dan menampilkan statistik hasilnya kita lakukan pada *life cycle* `onResume` untuk memastikan fungsi tersebut selalu dijalankan ketika Dashboard ditampilkan kembali. Method `sendRequest` melakukan pemanggilan class `JsonArrayRequest` untuk mendapatkan data dari server dalam bentuk JSONArray (bukan object seperti sebelumnya), kemudian memanggil fungsi `requestAction` ketika sudah mendapatkan data dari server. 
+
+Ada sedikit perbedaan pada *request* yang dilakukan kali ini, yaitu kita harus melakukan *override* method `getHeaders` sebagaimana terlihat pada baris 61 - 69. Tujuan dari *overriding* ini adalah mengisikan kode **token** dan **uid** ke dalam request yang dikirim, sehingga server dapat melakukan otentikasi atas pengguna yang sedang aktif.
+
+Adapun fungsi `requestAction` berfungsi untuk memasukkan data array yang didapatkan dari server ke dalam `ArrayList` of `Transaction` untuk dapat dilakukan manipulasi selanjutnya. Dan yang terakhir adalah method `updateStat` melakukan perhitungan statistik menggunakan data yang telah tersimpan pada `ArrayList` sebelumnya.
+
 ### Form Tambah Transaksi
+
+Proses menambahkan transaksi dan mengirimkan datanya ke server meliputi pengambilan data pengguna aktif melalui `SharedPreferences` yang dilakukan di baris 11, kemudian menyimpan data form ke dalam `HashMap` sebagaimana ditunjukkan pada baris 17 - 26, dan mengirimkannya menggunakan `JsonObjectRequest` pada baris 28. Seperti halnya `request` pengambilan data, operasi penulisan data di server juga memerlukan proses otentikasi yang dilakukan dengan mengirimkan data *token* dan *uid* melalui *header* sebagaimana ditunjukkan pada baris 46 - 54.
 
 ```java
 public class TransactionFormActivity extends AppCompatActivity {
@@ -386,7 +415,11 @@ public class TransactionFormActivity extends AppCompatActivity {
 }
 ```
 
+Setelah menyelesaikan bagian ini, kita bisa mencoba menjalankan aplikasi melakukan Register, Login, menambahkan data transaksi baru dan melihat apakah data yang barusan kita masukkan sudah direkap statistiknya pada Dashboard.
+
 ### List Transaksi
+
+Class `TransactionListActivity` bertugas untuk menampilkan data transaksi yang didapatkan dari server dalam bentuk list. Pada tutorial ini kita menggunakan list yang paling sederhana yaitu ListView dengan tampilan **String** saja. Langkah awal yang dilakukan sama seperti sebelumnya yaitu mengambil data pengguna aktif dari `SharedPreferences` untuk dapat dimasukkan ke dalam data header yang dikirim. Selanjutnya melakukan *request* ke server dengan menggunakan `JsonArrayRequest` dan ketika sudah mendapatkan datanya. Kemudian langkah terakhir mengeksekusi fungsi `requestAction` untuk menampilkan dalam bentuk List. Koding untuk proses tersebut sebagaimana ditampilkan di bawah ini:
 
 ```java
 public class TransactionListActivity extends AppCompatActivity {
@@ -467,7 +500,11 @@ public class TransactionListActivity extends AppCompatActivity {
 }
 ```
 
+Method `requestAction` bertanggung jawab memasukkan data yang diterima dari server ke dalam `ArrayList` of `Transaction` yang sudah dipersiapkan sebelumnya dan juga mengeset nilai tersebut sebagai acuan pada adapter milik `ListView` pada tampilan. Secara otomatis, list tampilan akan berubah dan menampilkan semua data yang didapatkan dari server.
+
 ### Detail Transaksi dan Hapus Data
+
+Proses terakhir yang perlu kita lakukan adalah mengirimkan *request* penghapusan data ke server. Sebelum dapat menghapus data, masih sama seperti proses sebelumnya kita harus mengirimkan **token** dan **uid** yang sudah tersimpan pada `SharedPreferences` dengan melakukan *overriding* pada header. Koding lengkap proses penghapusan transaksi tertentu ditunjukkan pada koding di bawah ini:
 
 ```java
 public class TransactionDetailActivity extends AppCompatActivity {
@@ -522,3 +559,5 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
 }
 ```
+
+Khusus untuk kasus pengahapusan kita tidak menggunakan `JsonObjectRequest` atau `JsonArrayRequest`, tapi kita menggunakan *class* yang lebih umum yaitu `StringRequest`. Selain itu, karena pada web service kita sudah mensyaratkan pengahapusan menggunakan method **DELETE**, maka pada saat melakukan request kita juga menggunakan method tersebut sebagaimana ditunjukkan pada baris 19 pada koding di atas.
